@@ -5,7 +5,19 @@ import { AtlasGuardrails } from '../core/guardrails';
 import { RalphyIntegration } from '../core/ralphy';
 import { AtlasUpdater } from '../core/updater';
 
-const VERSION = '1.0.18';
+import pkg from '../../package.json';
+
+const VERSION = pkg.version;
+
+// EARLY REDIRECTION: If we are in MCP mode, silence stdout immediately
+if (process.argv.includes('mcp')) {
+  const originalLog = console.log;
+  console.log = (...args) => {
+    process.stderr.write(args.map(String).join(' ') + '\n');
+  };
+  // Also redirect stdout.write to stderr if possible, but that's risky for the protocol
+  // Better to just ensure commander doesn't use it.
+}
 
 /* eslint-disable no-useless-escape */
 export const BANNER = `
@@ -25,6 +37,7 @@ export const BANNER = `
    \x1b[1mATLAS GUARDRAILS\x1b[0m - \x1b[2mStop the Entropy\x1b[0m
 `;
 
+const isMcp = process.argv.includes('mcp');
 const program = new Command();
 
 program
@@ -32,7 +45,7 @@ program
   .description('Atlas Guardrails CLI')
   .version(VERSION)
   .configureOutput({
-    writeOut: (str) => process.stdout.write(str),
+    writeOut: (str) => (isMcp ? process.stderr.write(str) : process.stdout.write(str)),
     writeErr: (str) => process.stderr.write(str),
     outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m'),
   });
