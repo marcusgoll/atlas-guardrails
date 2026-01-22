@@ -35,16 +35,18 @@ export class SimpleParser {
     const imports: ImportDef[] = [];
     const lines = content.split('\n');
 
-    // Heuristic Regexes for MVP
-    // NOTE: These are fragile and intended for MVP "best effort"
     const exportRegex = /export\s+(const|let|var|function|class|interface|type)\s+([a-zA-Z0-9_]+)/;
     const importRegex = /import\s+.*from\s+['"]([^'"]+)['"]/;
     const functionRegex = /function\s+([a-zA-Z0-9_]+)/;
     const classRegex = /class\s+([a-zA-Z0-9_]+)/;
+    const methodRegex = /^\s+(?:async\s+)?([a-zA-Z0-9_]+)\s*\(.*\)\s*[:{]/;
+
+    let currentClass: string | null = null;
 
     lines.forEach((line, index) => {
       const lineNum = index + 1;
-
+      const trimmed = line.trim();
+      
       const impMatch = line.match(importRegex);
       if (impMatch) {
         imports.push({ path: impMatch[1] });
@@ -52,48 +54,37 @@ export class SimpleParser {
 
       const expMatch = line.match(exportRegex);
       if (expMatch) {
-        symbols.push({
-          kind: 'export',
-          name: expMatch[2],
-          signature: line.trim(),
-          start_line: lineNum,
-          end_line: lineNum, // Single line approx for now
-          exported: true,
-        });
-        // Also add as specific kind
-        symbols.push({
-          kind: expMatch[1] as any,
-          name: expMatch[2],
-          signature: line.trim(),
-          start_line: lineNum,
-          end_line: lineNum,
-          exported: true,
+        const name = expMatch[2];
+        const kind = expMatch[1];
+        symbols.push({ kind: 'export', name, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: true });
+        symbols.push({ kind: kind as any, name, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: true });
+        if (kind === 'class') currentClass = name;
+        return;
+      }
+
+      const classMatch = line.match(classRegex);
+      if (classMatch) {
+        currentClass = classMatch[1];
+        symbols.push({ kind: 'class', name: currentClass, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: false });
+        return;
+      }
+
+      const methodMatch = line.match(methodRegex);
+      if (methodMatch && currentClass) {
+        symbols.push({ 
+          kind: 'function', 
+          name: `${currentClass}.${methodMatch[1]}`, 
+          signature: trimmed, 
+          start_line: lineNum, 
+          end_line: lineNum, 
+          exported: false 
         });
         return;
       }
 
       const funcMatch = line.match(functionRegex);
       if (funcMatch) {
-        symbols.push({
-          kind: 'function',
-          name: funcMatch[1],
-          signature: line.trim(),
-          start_line: lineNum,
-          end_line: lineNum,
-          exported: false,
-        });
-      }
-
-      const classMatch = line.match(classRegex);
-      if (classMatch) {
-        symbols.push({
-          kind: 'class',
-          name: classMatch[1],
-          signature: line.trim(),
-          start_line: lineNum,
-          end_line: lineNum,
-          exported: false,
-        });
+        symbols.push({ kind: 'function', name: funcMatch[1], signature: trimmed, start_line: lineNum, end_line: lineNum, exported: false });
       }
     });
 
@@ -109,39 +100,28 @@ export class SimpleParser {
     const classRegex = /class\s+([a-zA-Z0-9_]+)/;
     const importRegex = /^(?:from\s+([a-zA-Z0-9_.]+)\s+)?import/;
 
+    let currentClass: string | null = null;
+
     lines.forEach((line, index) => {
       const lineNum = index + 1;
       const trimmedLine = line.trim();
-
-      // very naive python import detection
+      
       const impMatch = trimmedLine.match(importRegex);
       if (impMatch) {
-        // This captures 'from module' part, simplified
         imports.push({ path: impMatch[1] || 'module' });
-      }
-
-      const defMatch = trimmedLine.match(defRegex);
-      if (defMatch) {
-        symbols.push({
-          kind: 'function',
-          name: defMatch[1],
-          signature: trimmedLine,
-          start_line: lineNum,
-          end_line: lineNum,
-          exported: true, // Python everything is public by default effectively
-        });
       }
 
       const classMatch = trimmedLine.match(classRegex);
       if (classMatch) {
-        symbols.push({
-          kind: 'class',
-          name: classMatch[1],
-          signature: trimmedLine,
-          start_line: lineNum,
-          end_line: lineNum,
-          exported: true,
-        });
+        currentClass = classMatch[1];
+        symbols.push({ kind: 'class', name: currentClass, signature: trimmedLine, start_line: lineNum, end_line: lineNum, exported: true });
+        return;
+      }
+
+      const defMatch = trimmedLine.match(defRegex);
+      if (defMatch) {
+        const name = currentClass ? `${currentClass}.${defMatch[1]}` : defMatch[1];
+        symbols.push({ kind: 'function', name, signature: trimmedLine, start_line: lineNum, end_line: lineNum, exported: true });
       }
     });
 

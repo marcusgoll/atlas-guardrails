@@ -13,21 +13,31 @@ export class AtlasGuardrails {
 
   findDuplicates(intent: string) {
     const db = this.db.getDb();
-
+    
     let candidates: any[] = [];
     if (intent) {
-      // Search for similar symbols by name
-      candidates = db
-        .prepare(
-          `
-            SELECT s.name, s.kind, f.path, s.signature
-            FROM symbols s
-            JOIN files f ON s.file_id = f.id
-            WHERE s.name LIKE ?
-            LIMIT 20
-        `,
-        )
-        .all(`%${intent}%`);
+        // Split intent into keywords for broader search
+        const keywords = intent.split(/\s+/).filter(k => k.length > 2);
+        if (keywords.length > 0) {
+            const placeholders = keywords.map(() => 's.name LIKE ?').join(' OR ');
+            const params = keywords.map(k => `%${k}%`);
+            candidates = db.prepare(`
+                SELECT s.name, s.kind, f.path, s.signature
+                FROM symbols s
+                JOIN files f ON s.file_id = f.id
+                WHERE ${placeholders}
+                LIMIT 20
+            `).all(...params);
+        } else {
+            // fallback to original behavior if no keywords
+            candidates = db.prepare(`
+                SELECT s.name, s.kind, f.path, s.signature
+                FROM symbols s
+                JOIN files f ON s.file_id = f.id
+                WHERE s.name LIKE ?
+                LIMIT 20
+            `).all(`%${intent}%`);
+        }
     } else {
       // Fallback: Find actual duplicates (exact name matches in different files)
       candidates = db

@@ -86,14 +86,16 @@ export class AtlasPacker {
     }
 
     const pack = {
-      task: options.task,
-      created_at: new Date().toISOString(),
-      files: selectedFiles,
-      stats: {
-        total_files: selectedFiles.length,
-        total_chars: currentSize,
-        budget: options.budget,
-      },
+        task: options.task,
+        created_at: new Date().toISOString(),
+        files: selectedFiles,
+        symbols: seeds.map(s => ({ name: s.name, kind: s.kind, file: s.file_path, signature: s.signature })),
+        stats: {
+            total_files: selectedFiles.length,
+            total_symbols: seeds.length,
+            total_chars: currentSize,
+            budget: options.budget
+        }
     };
 
     fs.writeFileSync(path.join(this.rootPath, 'pack.json'), JSON.stringify(pack, null, 2));
