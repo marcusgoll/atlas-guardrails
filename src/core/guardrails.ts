@@ -17,7 +17,10 @@ export class AtlasGuardrails {
     let candidates: any[] = [];
     if (intent) {
       // Split intent into keywords for broader search
-      const rawKeywords = intent.toLowerCase().split(/\s+/).filter((k) => k.length > 2);
+      const rawKeywords = intent
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((k) => k.length > 2);
       const keywords = new Set<string>();
       for (const kw of rawKeywords) {
         keywords.add(kw);

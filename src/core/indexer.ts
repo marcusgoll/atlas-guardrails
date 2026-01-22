@@ -26,6 +26,7 @@ export class AtlasIndexer {
     ig.add('.git/**');
     ig.add('node_modules/**');
     ig.add('.gitignore');
+    ig.add('.trunk/**');
 
     const files = await glob('**/*', {
       cwd: this.rootPath,
