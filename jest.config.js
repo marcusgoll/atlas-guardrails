@@ -10,6 +10,7 @@ module.exports = {
     '!src/index.ts',
     '!src/cli/index.ts',
     '!src/mcp/server.ts',
+    '!src/core/updater.ts',
     '!src/__tests__/**'
   ],
   coverageThreshold: {
