@@ -29,109 +29,86 @@ Coding agents (Claude Code, Cursor, Windsurf) are fast, but they have the memory
 
 Atlas is a **local-first guardrail** that forces agents to "read the map" before they write code. It indexes your repo, packs relevant context deterministically, and screams at agents when they try to duplicate code or break APIs.
 
-## Installation
+## Installation & Integration 🤖
 
-### 🤖 Agent Extension Install (Recommended)
-Install Atlas directly into your favorite AI agent CLI:
+Atlas is built for **AI Agents**, not humans. To give your agent "eyes" into your repository, choose your client below:
 
-| Platform | Command |
-| :--- | :--- |
-| **Gemini CLI** | `gemini extensions install https://github.com/marcusgoll/atlas-guardrails` |
-| **Claude Code** | `claude extensions install https://github.com/marcusgoll/atlas-guardrails` |
-| **OpenCode** | [Manual Setup](#mcp-support) |
-| **Cursor** | [Manual Setup](#mcp-support) |
-| **Codex** | [MCP Config](#mcp-support) |
+<details>
+<summary><b>Gemini CLI</b></summary>
 
-### 💻 CLI Install
-To use Atlas as a standalone terminal tool:
+Install Atlas as a native extension:
 ```bash
-npm install -g atlas-guardrails
+gemini extensions install https://github.com/marcusgoll/atlas-guardrails
 ```
+**Capabilities added:** `atlas_index`, `atlas_pack`, `atlas_find_duplicates`.
+</details>
 
-### 🛠️ Developer Install (Source)
+<details>
+<summary><b>Claude Code</b></summary>
+
+Install Atlas as a native skill:
 ```bash
-git clone https://github.com/marcusgoll/atlas-guardrails.git
-cd atlas-guardrails
-npm install && npm run build && npm link
+claude extensions install https://github.com/marcusgoll/atlas-guardrails
 ```
+Claude will automatically utilize `SKILL.md` and `CLAUDE.md` context to manage your repo entropy.
+</details>
 
-## Usage
-Run this once (and after major changes) to build the map.
-```bash
-atlas index
-```
+<details>
+<summary><b>Cursor / Windsurf</b></summary>
 
-### 3. Use It
-**Pack context for a task** (saves tokens, improves accuracy):
-```bash
-atlas pack -t "fix the login bug in auth service"
-# Outputs: pack.json (feed this to your LLM)
-```
+Add Atlas as an **MCP Server** in your IDE settings:
 
-**Find duplicates** (before you create new code):
-```bash
-atlas find-duplicates -i "Button"
-# Returns: Existing Button components so you don't make another one.
-```
+1. Open **Settings** -> **Features** -> **MCP**.
+2. Click **+ Add Server**:
+   - **Name**: `Atlas`
+   - **Type**: `command`
+   - **Command**: `npx -y atlas-guardrails mcp`
+</details>
 
-**Check for drift** (in CI):
-```bash
-atlas check
-# Returns: Exit code 1 if public API drifted or index is stale.
-```
+<details>
+<summary><b>Claude Desktop</b></summary>
 
----
+Add Atlas to your `claude_desktop_config.json`:
 
-## Features
-
-### 🧠 Smart Context Packing
-Don't dump your whole repo into the prompt. `atlas pack` uses recursive graph traversal (Keyword → Symbol → File → Imports) to find *exactly* what's needed for a task within a strict token budget.
-
-### 🛑 Anti-Duplication
-Stop the "5 different uuid helper functions" problem.
-`atlas find-duplicates` scans your symbol database for code that matches your *intent*, not just the name.
-
-### 🚧 API Drift Gates
-`atlas check` freezes your public API surface. If an agent modifies an exported function signature without updating the `approved_api.json` baseline, the build fails.
-
-### 🤖 Native MCP Support
-Atlas works out-of-the-box with **Claude Desktop**, **Claude Code**, and **Cursor** via the [Model Context Protocol](https://modelcontextprotocol.io).
-
-See [INTEGRATION.md](./INTEGRATION.md) for full technical specs.
-
-**Claude Desktop Config:**
 ```json
 {
   "mcpServers": {
     "atlas": {
-      "command": "atlas",
-      "args": ["mcp"]
+      "command": "npx",
+      "args": ["-y", "atlas-guardrails", "mcp"]
     }
   }
 }
 ```
-
-### 🧠 Agent Context Files
-Atlas provides context prompts to teach LLMs how to use it:
-*   [CLAUDE.md](./CLAUDE.md) for Claude Code.
-*   [GEMINI.md](./GEMINI.md) for Gemini CLI.
-
-### 🎩 Ralphy Integration
-Use [Ralphy](https://github.com/michaelshimeles/ralphy)? Atlas generates your config automatically.
-```bash
-atlas ralphy-init
-```
+</details>
 
 ---
 
+## Agent Workflow
+
+Once installed, your AI agent will follow this deterministic loop:
+
+1.  **Map the Terrain**: Agent calls `atlas_index` to build/update the symbol graph.
+2.  **Gather Context**: Agent calls `atlas_pack` with your task description. It receives a token-optimized pack of relevant files and their dependency trails.
+3.  **Prevent Duplication**: Before the agent writes a new helper, it calls `atlas_find_duplicates` to see if the code already exists.
+4.  **Enforce Guardrails**: Agent runs `atlas check` (or you run it in CI) to ensure no public API drift occurred.
+
+---
+
+## Documentation & Specs
+
+*   [INTEGRATION.md](./INTEGRATION.md) - Full MCP & API Schema.
+*   [CLAUDE.md](./CLAUDE.md) - Instruction set for Claude.
+*   [GEMINI.md](./GEMINI.md) - Instruction set for Gemini.
+*   [API Documentation](./docs/index.html) - TypeDoc output.
+
 ## Contributing
 
-Got a better way to stop entropy? PRs are welcome.
-
-1.  Fork it.
-2.  `npm install`
-3.  `npm test` (Maintain >80% coverage or the golem gets angry)
-4.  Push it.
+We aim for **>80% test coverage** to keep the guardrails stable.
+1. Fork & Clone.
+2. `npm install`
+3. `npm test`
+4. PR.
 
 ## License
 
