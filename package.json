@@ -24,8 +24,16 @@
     ]
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Marcus Gollahon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcusgoll/atlas-guardrails.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marcusgoll/atlas-guardrails/issues"
+  },
+  "homepage": "https://github.com/marcusgoll/atlas-guardrails#readme",
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",

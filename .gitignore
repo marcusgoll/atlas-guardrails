@@ -3,3 +3,4 @@ dist
 .atlas
 pack.json
 .ralphy
+coverage

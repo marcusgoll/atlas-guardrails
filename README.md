@@ -1,76 +1,84 @@
-# Atlas Guardrails
+<div align="center">
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/atlas)
-[![Coverage Status](https://img.shields.io/badge/coverage-80%25-green)](https://github.com/yourusername/atlas)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+# Atlas Guardrails 🗺️
 
-**Atlas Guardrails** is a tool designed to make LLM coding agents safer, smarter, and less prone to creating technical debt. It provides deterministic context packing, duplication prevention, and drift detection guardrails.
+**Stop LLM agents from turning your codebase into a landfill.**
+
+[![npm version](https://img.shields.io/npm/v/atlas-guardrails.svg?style=flat-square)](https://www.npmjs.com/package/atlas-guardrails)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/marcusgoll/atlas-guardrails/ci.yml?branch=main&style=flat-square)](https://github.com/marcusgoll/atlas-guardrails/actions)
+[![License](https://img.shields.io/npm/l/atlas-guardrails.svg?style=flat-square)](LICENSE)
+[![Downloads](https://img.shields.io/npm/dm/atlas-guardrails.svg?style=flat-square)](https://www.npmjs.com/package/atlas-guardrails)
+
+[Quick Start](#quick-start) •
+[Features](#features) •
+[MCP Support](#mcp-support) •
+[Contributing](#contributing)
+
+</div>
+
+---
+
+## The Problem
+
+Coding agents (Claude Code, Cursor, Windsurf) are fast, but they have the memory of a goldfish. They:
+1.  **Re-invent the wheel**: Creating `utils/date.ts` when `lib/time.ts` already exists.
+2.  **Hallucinate APIs**: Guessing method signatures instead of looking them up.
+3.  **Drift APIs**: Changing public exports without you realizing it until CI explodes.
+
+## The Solution: Atlas
+
+Atlas is a **local-first guardrail** that forces agents to "read the map" before they write code. It indexes your repo, packs relevant context deterministically, and screams at agents when they try to duplicate code or break APIs.
+
+## Quick Start
+
+### 1. Install Globally
+```bash
+npm install -g atlas-guardrails
+```
+
+### 2. Index Your Repo
+Run this once (and after major changes) to build the map.
+```bash
+atlas index
+```
+
+### 3. Use It
+**Pack context for a task** (saves tokens, improves accuracy):
+```bash
+atlas pack -t "fix the login bug in auth service"
+# Outputs: pack.json (feed this to your LLM)
+```
+
+**Find duplicates** (before you create new code):
+```bash
+atlas find-duplicates -i "Button"
+# Returns: Existing Button components so you don't make another one.
+```
+
+**Check for drift** (in CI):
+```bash
+atlas check
+# Returns: Exit code 1 if public API drifted or index is stale.
+```
+
+---
 
 ## Features
 
-*   **Deterministic Context**: `atlas pack` recursively finds relevant code, saving token budget and ensuring agents see what they need.
-*   **Duplicate Prevention**: `atlas find-duplicates` helps agents reuse existing code instead of reinventing the wheel.
-*   **Drift Guardrails**: `atlas check` prevents drift in public APIs and ensures the index is up-to-date.
-*   **MCP Integration**: Native Model Context Protocol server to expose tools directly to Claude Code, Codex, and generic MCP clients.
-*   **Ralphy Friendly**: Auto-generates configuration for [Ralphy](https://github.com/michaelshimeles/ralphy).
+### 🧠 Smart Context Packing
+Don't dump your whole repo into the prompt. `atlas pack` uses recursive graph traversal (Keyword → Symbol → File → Imports) to find *exactly* what's needed for a task within a strict token budget.
 
-## Installation
+### 🛑 Anti-Duplication
+Stop the "5 different uuid helper functions" problem.
+`atlas find-duplicates` scans your symbol database for code that matches your *intent*, not just the name.
 
-### Global Installation (Recommended)
+### 🚧 API Drift Gates
+`atlas check` freezes your public API surface. If an agent modifies an exported function signature without updating the `approved_api.json` baseline, the build fails.
 
-```bash
-npm install -g atlas-guardrails
-# or link from source
-git clone https://github.com/yourusername/atlas.git
-cd atlas
-npm install
-npm run build
-npm link
-```
+### 🤖 Native MCP Support
+Atlas works out-of-the-box with **Claude Desktop**, **Claude Code**, and **Cursor** via the [Model Context Protocol](https://modelcontextprotocol.io).
 
-## Usage
-
-### CLI Commands
-
-Run `atlas --help` for a full list of commands.
-
-*   **Index your repository**:
-    ```bash
-    atlas index
-    ```
-    Creates `.atlas/` with symbol index and manifests. Run this first!
-
-*   **Pack context for a task**:
-    ```bash
-    atlas pack -t "implement user authentication" --budget 50000
-    ```
-    Generates `pack.json` containing the most relevant code for the task.
-
-*   **Find duplicates**:
-    ```bash
-    atlas find-duplicates -i "Button"
-    ```
-    Returns existing symbols that match the intent, helping you avoid duplicates.
-
-*   **Check guardrails**:
-    ```bash
-    atlas check
-    ```
-    Verifies that the public API hasn't drifted from `approved_api.json` (if present) and that the index is consistent.
-
-*   **Initialize Ralphy config**:
-    ```bash
-    atlas ralphy-init
-    ```
-
-### MCP Server Setup
-
-Atlas includes a built-in MCP server.
-
-**Claude Desktop / Code Configuration:**
-
-Add this to your `claude_desktop_config.json`:
-
+**Claude Desktop Config:**
 ```json
 {
   "mcpServers": {
@@ -82,15 +90,23 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
-## Documentation
+### 🎩 Ralphy Integration
+Use [Ralphy](https://github.com/michaelshimeles/ralphy)? Atlas generates your config automatically.
+```bash
+atlas ralphy-init
+```
 
-*   [API Documentation](./docs/index.html) generated by TypeDoc.
-*   [Contributing Guidelines](./CONTRIBUTING.md)
+---
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details on how to set up your development environment and submit pull requests.
+Got a better way to stop entropy? PRs are welcome.
+
+1.  Fork it.
+2.  `npm install`
+3.  `npm test` (Maintain >80% coverage or the golem gets angry)
+4.  Push it.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT © [Marcus Gollahon](https://github.com/marcusgoll)
