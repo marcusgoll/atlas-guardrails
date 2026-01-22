@@ -35,7 +35,7 @@ export class SimpleParser {
     const imports: ImportDef[] = [];
     const lines = content.split('\n');
 
-    const exportRegex = /export\s+(const|let|var|function|class|interface|type)\s+([a-zA-Z0-9_]+)/;
+    const exportRegex = /export\s+(?:async\s+)?(const|let|var|function|class|interface|type)\s+([a-zA-Z0-9_]+)/;
     const importRegex = /import\s+.*from\s+['"]([^'"]+)['"]/;
     const functionRegex = /function\s+([a-zA-Z0-9_]+)/;
     const classRegex = /class\s+([a-zA-Z0-9_]+)/;
