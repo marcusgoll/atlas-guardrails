@@ -133,6 +133,59 @@ Once installed, your AI agent will follow this deterministic loop:
 
 ---
 
+## Agent Instruction Files
+
+To ensure your AI agent uses Atlas correctly, add an instruction file to your project root. The agent reads this file automatically and follows the guardrails.
+
+| Client | File | Notes |
+|--------|------|-------|
+| Claude Code | `CLAUDE.md` | Auto-loaded by Claude |
+| Gemini CLI | `GEMINI.md` | Referenced via `gemini-extension.json` |
+| Generic | `AGENTS.md` | Works with most agents |
+
+### Quick Setup
+
+Copy the template to your project:
+
+```bash
+# For Claude Code
+curl -o CLAUDE.md https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/CLAUDE.md
+
+# For Gemini CLI
+curl -o GEMINI.md https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/GEMINI.md
+```
+
+### Template Content
+
+Your instruction file should include these core rules:
+
+```markdown
+# Atlas Guardrails
+
+## Rules for Agent
+
+1. **Pack Before Editing**: Run `atlas_pack(task="...")` before modifying code.
+2. **Search Before Creating**: Run `atlas_find_duplicates(intent="...")` before creating new utilities.
+3. **Respect Guardrails**: If `atlas check` fails, fix the drift.
+
+## MCP Tools
+
+- `atlas_index()` - Rebuild the symbol index
+- `atlas_pack(task, budget)` - Get context for a task
+- `atlas_find_duplicates(intent)` - Find existing code
+```
+
+### Why This Matters
+
+Without instruction files, agents will:
+- Skip the `atlas_pack` step and read random files
+- Create duplicate utilities instead of reusing existing code
+- Ignore API drift warnings
+
+The instruction file makes Atlas usage **mandatory** for the agent.
+
+---
+
 ## Documentation & Specs
 
 *   [INTEGRATION.md](./INTEGRATION.md) - Full MCP & API Schema.
