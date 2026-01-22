@@ -4,3 +4,7 @@ dist
 pack.json
 .ralphy
 coverage
+.deep-*
+test_edges
+nul
+*.log

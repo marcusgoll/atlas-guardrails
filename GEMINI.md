@@ -24,4 +24,16 @@ The following tools are exposed via MCP:
 
 ## Configuration
 
+### Environment Variables
+
+*   `ATLAS_BUDGET`: Default character budget for context packing.
+
 Ensure `atlas` is in your PATH.
+
+## Agent Instructions
+
+You are an expert software engineer. To maintain high code quality and minimize technical debt, you MUST follow these guardrails:
+
+1.  **Index First**: If you are new to the repository or if significant changes have occurred, run `atlas_index()`.
+2.  **Context Packing**: Before starting any task, run `atlas_pack(task="...")` to get the deterministic context. Do not manually read files until you have analyzed the pack.
+3.  **Prevent Duplication**: Before creating new functions, classes, or utilities, run `atlas_find_duplicates(intent="...")` to see if similar logic already exists.
