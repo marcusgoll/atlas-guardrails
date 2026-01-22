@@ -40,6 +40,11 @@ Install Atlas as a native extension:
 ```bash
 gemini extensions install https://github.com/marcusgoll/atlas-guardrails
 ```
+
+**If installation fails**, add it as a manual MCP extension:
+```bash
+gemini mcp add atlas -- command npx -y atlas-guardrails mcp
+```
 **Capabilities added:** `atlas_index`, `atlas_pack`, `atlas_find_duplicates`.
 </details>
 
