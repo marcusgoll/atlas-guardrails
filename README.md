@@ -90,6 +90,21 @@ Add Atlas to your `claude_desktop_config.json`:
 ```
 </details>
 
+<details>
+<summary><b>Developer / Standalone CLI</b></summary>
+
+To use Atlas as a standalone terminal tool (or to enable the global `atlas` command):
+```bash
+npm install -g atlas-guardrails
+```
+*Note: If you are on a version < 1.0.15, run this one last time to enable auto-updates.*
+
+Keep Atlas current with:
+```bash
+atlas update
+```
+</details>
+
 ---
 
 ## Agent Workflow

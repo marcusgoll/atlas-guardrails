@@ -2,7 +2,6 @@ import https from 'https';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { BANNER } from '../cli/index';
 
 const PACKAGE_NAME = 'atlas-guardrails';
 const UPDATE_CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
@@ -17,18 +16,20 @@ export class AtlasUpdater {
 
   static async getLatestVersion(): Promise<string | null> {
     return new Promise((resolve) => {
-      https.get(`https://registry.npmjs.org/${PACKAGE_NAME}/latest`, (res) => {
-        let data = '';
-        res.on('data', (chunk) => (data += chunk));
-        res.on('end', () => {
-          try {
-            const json = JSON.parse(data);
-            resolve(json.version);
-          } catch {
-            resolve(null);
-          }
-        });
-      }).on('error', () => resolve(null));
+      https
+        .get(`https://registry.npmjs.org/${PACKAGE_NAME}/latest`, (res) => {
+          let data = '';
+          res.on('data', (chunk) => (data += chunk));
+          res.on('end', () => {
+            try {
+              const json = JSON.parse(data);
+              resolve(json.version);
+            } catch {
+              resolve(null);
+            }
+          });
+        })
+        .on('error', () => resolve(null));
     });
   }
 
@@ -54,7 +55,9 @@ export class AtlasUpdater {
 
     if (latest !== currentVersion) {
       if (silent) {
-        process.stderr.write(`\n\x1b[33m[Atlas] A new version is available: ${latest} (Current: ${currentVersion})\x1b[0m\n`);
+        process.stderr.write(
+          `\n\x1b[33m[Atlas] A new version is available: ${latest} (Current: ${currentVersion})\x1b[0m\n`,
+        );
         process.stderr.write(`\x1b[33mRun 'atlas update' to upgrade.\x1b[0m\n\n`);
       } else {
         console.log(`Updating Atlas from ${currentVersion} to ${latest}...`);
@@ -71,7 +74,9 @@ export class AtlasUpdater {
       execSync('npm install -g atlas-guardrails', { stdio: 'inherit' });
       console.log('\x1b[32mSuccessfully updated Atlas Guardrails!\x1b[0m');
     } catch (e) {
-      console.error('\x1b[31mUpdate failed. Please run "npm install -g atlas-guardrails" manually.\x1b[0m');
+      console.error(
+        '\x1b[31mUpdate failed. Please run "npm install -g atlas-guardrails" manually.\x1b[0m',
+      );
       console.error((e as Error).message);
     }
   }
