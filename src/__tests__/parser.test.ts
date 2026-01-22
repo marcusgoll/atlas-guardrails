@@ -5,39 +5,47 @@ describe('SimpleParser', () => {
     const code = `
       import { Foo } from './foo';
       export class MyClass {
-        myMethod() {}
+        async myMethod(a: string) {}
+        static syncMethod() {}
       }
-      export function myFunction() {}
+      export async function myFunction() {}
+      const myArrow = async (x: number) => x * 2;
+      export const exportedArrow = () => {};
       function internalFunc() {}
+      export default class DefaultClass {}
     `;
     const result = SimpleParser.parse('test.ts', code);
 
     expect(result.language).toBe('typescript');
     expect(result.imports).toContainEqual({ path: './foo' });
 
-    // Check exports
-    const exportedClass = result.symbols.find((s) => s.name === 'MyClass' && s.kind === 'class');
-    expect(exportedClass).toBeDefined();
-    expect(exportedClass?.exported).toBe(true);
+    // Check class and methods
+    const cls = result.symbols.find((s) => s.name === 'MyClass' && s.kind === 'class');
+    expect(cls).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'MyClass.myMethod')).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'MyClass.syncMethod')).toBeDefined();
 
-    const exportedFunc = result.symbols.find(
-      (s) => s.name === 'myFunction' && s.kind === 'function',
-    );
-    expect(exportedFunc).toBeDefined();
-    expect(exportedFunc?.exported).toBe(true);
+    // Check async function
+    const asyncFunc = result.symbols.find((s) => s.name === 'myFunction');
+    expect(asyncFunc).toBeDefined();
+    expect(asyncFunc?.exported).toBe(true);
 
-    // Check internal
-    const internal = result.symbols.find((s) => s.name === 'internalFunc');
-    expect(internal).toBeDefined();
-    expect(internal?.exported).toBe(false);
+    // Check arrows
+    expect(result.symbols.find((s) => s.name === 'myArrow')).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'exportedArrow')).toBeDefined();
+
+    // Check default export
+    expect(result.symbols.find((s) => s.name === 'DefaultClass' && s.exported)).toBeDefined();
   });
 
   test('parses Python symbols correctly', () => {
     const code = [
       'from module import Something',
-      'class MyPyClass:',
-      '    def method(self): pass',
-      'def my_py_func(): pass',
+      'class MyPyClass(Base):',
+      '    async def async_method(self): pass',
+      '    def sync_method(self): pass',
+      'async def top_level_async(): pass',
+      'def top_level_sync(): pass',
     ].join('\n');
     const result = SimpleParser.parse('test.py', code);
 
@@ -47,10 +55,9 @@ describe('SimpleParser', () => {
     const cls = result.symbols.find((s) => s.name === 'MyPyClass');
     expect(cls).toBeDefined();
 
-    const method = result.symbols.find((s) => s.name === 'MyPyClass.method');
-    expect(method).toBeDefined();
-
-    const func = result.symbols.find((s) => s.name === 'my_py_func');
-    expect(func).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'MyPyClass.async_method')).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'MyPyClass.sync_method')).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'top_level_async')).toBeDefined();
+    expect(result.symbols.find((s) => s.name === 'top_level_sync')).toBeDefined();
   });
 });

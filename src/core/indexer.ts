@@ -38,14 +38,14 @@ export class AtlasIndexer {
     const filteredFiles = files.filter((f) => !ig.ignores(f));
 
     const db = this.db.getDb();
+    
+    let totalFiles = 0;
+    let totalSymbols = 0;
+    let totalImports = 0;
 
     // Prepare statements
-    const insertFile = db.prepare(
-      'INSERT OR REPLACE INTO files (path, language, hash, last_seen_commit) VALUES (?, ?, ?, ?)',
-    );
-    const insertSymbol = db.prepare(
-      'INSERT INTO symbols (file_id, kind, name, signature, start_line, end_line, exported_bool) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    );
+    const insertFile = db.prepare('INSERT OR REPLACE INTO files (path, language, hash, last_seen_commit) VALUES (?, ?, ?, ?)');
+    const insertSymbol = db.prepare('INSERT INTO symbols (file_id, kind, name, signature, start_line, end_line, exported_bool) VALUES (?, ?, ?, ?, ?, ?, ?)');
     const insertImport = db.prepare('INSERT INTO imports (file_id, imported_path) VALUES (?, ?)');
     const deleteSymbols = db.prepare('DELETE FROM symbols WHERE file_id = ?');
     const deleteImports = db.prepare('DELETE FROM imports WHERE file_id = ?');
@@ -60,58 +60,50 @@ export class AtlasIndexer {
           const stat = fs.statSync(fullPath);
           if (!stat.isFile()) continue;
 
+          totalFiles++;
           const content = fs.readFileSync(fullPath, 'utf-8');
           const hash = crypto.createHash('md5').update(content).digest('hex');
-
-          const existing = getFile.get(file) as { id: number; hash: string } | undefined;
+          
+          const existing = getFile.get(file) as { id: number, hash: string } | undefined;
 
           if (existing && existing.hash === hash) {
             continue; // Unchanged
           }
 
           const parseResult = SimpleParser.parse(file, content);
-
+          
           let fileId = existing ? existing.id : undefined;
 
           if (existing) {
-            // Update file hash
-            db.prepare('UPDATE files SET hash = ?, last_seen_commit = ? WHERE id = ?').run(
-              hash,
-              'HEAD',
-              existing.id,
-            );
-            deleteSymbols.run(existing.id);
-            deleteImports.run(existing.id);
+               // Update file hash
+               db.prepare('UPDATE files SET hash = ?, last_seen_commit = ? WHERE id = ?').run(hash, 'HEAD', existing.id);
+               deleteSymbols.run(existing.id);
+               deleteImports.run(existing.id);
           } else {
-            const res = insertFile.run(file, parseResult.language, hash, 'HEAD');
-            fileId = res.lastInsertRowid as number;
+               const res = insertFile.run(file, parseResult.language, hash, 'HEAD');
+               fileId = res.lastInsertRowid as number;
           }
 
           // Insert Symbols
           for (const sym of parseResult.symbols) {
-            insertSymbol.run(
-              fileId,
-              sym.kind,
-              sym.name,
-              sym.signature,
-              sym.start_line,
-              sym.end_line,
-              sym.exported ? 1 : 0,
-            );
+              totalSymbols++;
+              insertSymbol.run(fileId, sym.kind, sym.name, sym.signature, sym.start_line, sym.end_line, sym.exported ? 1 : 0);
           }
 
           // Insert Imports
           for (const imp of parseResult.imports) {
-            insertImport.run(fileId, imp.path);
+              totalImports++;
+              insertImport.run(fileId, imp.path);
           }
         } catch (e) {
-          console.warn(`Skipping file ${file}: ${(e as Error).message}`);
+          process.stderr.write(`Skipping file ${file}: ${(e as Error).message}
+`);
         }
       }
     })();
 
     this.generateManifests();
-    console.log('Indexing complete.');
+    console.log(`Indexing complete. Found ${totalSymbols} symbols across ${totalFiles} files.`);
   }
 
   private generateManifests() {
