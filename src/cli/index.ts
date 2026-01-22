@@ -4,12 +4,36 @@ import { AtlasPacker } from '../core/packer';
 import { AtlasGuardrails } from '../core/guardrails';
 import { RalphyIntegration } from '../core/ralphy';
 
+const BANNER = `
+\x1b[36m
+      ___           ___           ___           ___           ___     
+     /\  \         /\  \         /\__\         /\  \         /\  \    
+    /::\  \        \:\  \       /:/  /        /::\  \       /::\  \   
+   /:/\:\  \        \:\  \     /:/  /        /:/\:\  \     /:/\ \  \  
+  /::\~\:\  \       /::\  \   /:/  /        /::\~\:\  \   _\:\~\ \  \ 
+ /:/\:\ \:\__\     /:/\:\__\ /:/__/        /:/\:\ \:\__\ /\ \:\ \ \__\
+ \/__\:\/:/  /    /:/  \/__/ \:\  \        \/__\:\/:/  / \:\ \:\ \/__/
+      \::/  /    /:/  /       \:\  \            \::/  /   \:\ \:\__\  
+      /:/  /    /:/  /         \:\  \           /:/  /     \:\/:/  /  
+     /:/  /    /:/  /           \:\__\         /:/  /       \::/  /   
+     \/__/     \/__/             \/__/         \/__/         \/__/    
+\x1b[0m
+   \x1b[1mATLAS GUARDRAILS\x1b[0m - \x1b[2mStop the Entropy\x1b[0m
+`;
+
 const program = new Command();
 
-program.name('atlas').description('Atlas Guardrails CLI').version('0.1.0');
-
 program
-  .command('index')
+  .name('atlas')
+  .description(BANNER + '\nAtlas Guardrails CLI')
+  .version('1.0.2')
+  .configureOutput({
+    writeOut: (str) => process.stdout.write(str),
+    writeErr: (str) => process.stdout.write(str),
+    outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m')
+  });
+
+program.command('index')
   .description('Index the repository')
   .action(async () => {
     const indexer = new AtlasIndexer(process.cwd());

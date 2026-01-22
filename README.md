@@ -31,12 +31,24 @@ Atlas is a **local-first guardrail** that forces agents to "read the map" before
 
 ## Quick Start
 
-### 1. Install Globally
+### ⚡ One-Line Install
+
+**Mac/Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/main/scripts/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/main/scripts/install.ps1 | iex
+```
+
+### Manual Install
 ```bash
 npm install -g atlas-guardrails
 ```
 
-### 2. Index Your Repo
+## Usage
 Run this once (and after major changes) to build the map.
 ```bash
 atlas index
@@ -78,6 +90,8 @@ Stop the "5 different uuid helper functions" problem.
 ### 🤖 Native MCP Support
 Atlas works out-of-the-box with **Claude Desktop**, **Claude Code**, and **Cursor** via the [Model Context Protocol](https://modelcontextprotocol.io).
 
+See [INTEGRATION.md](./INTEGRATION.md) for full technical specs.
+
 **Claude Desktop Config:**
 ```json
 {
@@ -89,6 +103,11 @@ Atlas works out-of-the-box with **Claude Desktop**, **Claude Code**, and **Curso
   }
 }
 ```
+
+### 🧠 Agent Context Files
+Atlas provides context prompts to teach LLMs how to use it:
+*   [CLAUDE.md](./CLAUDE.md) for Claude Code.
+*   [GEMINI.md](./GEMINI.md) for Gemini CLI.
 
 ### 🎩 Ralphy Integration
 Use [Ralphy](https://github.com/michaelshimeles/ralphy)? Atlas generates your config automatically.
