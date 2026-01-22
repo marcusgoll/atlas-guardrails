@@ -4,36 +4,42 @@ import { AtlasPacker } from '../core/packer';
 import { AtlasGuardrails } from '../core/guardrails';
 import { RalphyIntegration } from '../core/ralphy';
 
-const BANNER = `
+/* eslint-disable no-useless-escape */
+export const BANNER = `
 \x1b[36m
-      ___           ___           ___           ___           ___     
-     /\  \         /\  \         /\__\         /\  \         /\  \    
-    /::\  \        \:\  \       /:/  /        /::\  \       /::\  \   
-   /:/\:\  \        \:\  \     /:/  /        /:/\:\  \     /:/\ \  \  
-  /::\~\:\  \       /::\  \   /:/  /        /::\~\:\  \   _\:\~\ \  \ 
- /:/\:\ \:\__\     /:/\:\__\ /:/__/        /:/\:\ \:\__\ /\ \:\ \ \__\
- \/__\:\/:/  /    /:/  \/__/ \:\  \        \/__\:\/:/  / \:\ \:\ \/__/
-      \::/  /    /:/  /       \:\  \            \::/  /   \:\ \:\__\  
-      /:/  /    /:/  /         \:\  \           /:/  /     \:\/:/  /  
-     /:/  /    /:/  /           \:\__\         /:/  /       \::/  /   
-     \/__/     \/__/             \/__/         \/__/         \/__/    
+      ___           ___           ___         ___           ___     
+     /\\  \\         /\\  \\         /\\__\\       /\\  \\         /\\  \\    
+    /::\\  \\        \\:\\  \\       /:/  /      /::\\  \\       /::\\  \\   
+   /:/\\:\\  \\        \\:\\  \\     /:/  /      /:/\\:\\  \\     /:/\\ \\  \\  
+  /::\\~\\:\\  \\       /::\\  \\   /:/  /      /::\\~\\:\\  \\   _\\:\\~\\ \\  \\ 
+ /:/\\:\\ \\:\\__\\     /:/\\:\\__\\ /:/__/      /:/\\:\\ \\:\\__\\ /\\ \\:\\ \\ \\__\\
+ \\/__\\:\\/:/  /    /:/  \\/__/ \\:\\  \\      \\/__\\:\\/:/  / \\:\\ \\:\\ \\/__/
+      \\::/  /    /:/  /       \\:\\  \\          \\::/  /   \\:\\ \\:\\__\\  
+      /:/  /    /:/  /         \\:\\  \\         /:/  /     \\:\\/:/  /  
+     /:/  /    /:/  /           \\:\\__\\       /:/  /       \\::/  /   
+     \\/__/     \\/__/             \\/__/       \\/__/         \\/__/    
 \x1b[0m
    \x1b[1mATLAS GUARDRAILS\x1b[0m - \x1b[2mStop the Entropy\x1b[0m
 `;
+
+if (!process.argv.includes('mcp')) {
+  process.stderr.write(BANNER + '\n');
+}
 
 const program = new Command();
 
 program
   .name('atlas')
-  .description(BANNER + '\nAtlas Guardrails CLI')
-  .version('1.0.2')
+  .description('Atlas Guardrails CLI')
+  .version('1.0.5')
   .configureOutput({
     writeOut: (str) => process.stdout.write(str),
     writeErr: (str) => process.stdout.write(str),
-    outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m')
+    outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m'),
   });
 
-program.command('index')
+program
+  .command('index')
   .description('Index the repository')
   .action(async () => {
     const indexer = new AtlasIndexer(process.cwd());
