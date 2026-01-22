@@ -54,18 +54,28 @@ gemini mcp add atlas -- command npx -y atlas-guardrails mcp
 <details>
 <summary><b>Claude Code</b></summary>
 
-Install Atlas as a native skill:
+Install Atlas as a native extension:
 ```bash
 claude extensions install https://github.com/marcusgoll/atlas-guardrails
 ```
-Claude will automatically utilize `SKILL.md` and `CLAUDE.md` context to manage your repo entropy.
+
+**What you get:**
+- MCP tools: `atlas_index`, `atlas_pack`, `atlas_find_duplicates`
+- Slash commands: `/atlas-pack`, `/atlas-check`, `/atlas-duplicates`
+- Skills: `/atlas` for guided context packing
+- Hooks: Auto-runs `atlas check` after Edit/Write operations
 </details>
 
 <details>
 <summary><b>Cursor / Windsurf</b></summary>
 
-Add Atlas as an **MCP Server** in your IDE settings:
+**Option A**: Copy the config file (recommended):
+```bash
+# From atlas-guardrails repo or create manually
+cp .cursor/mcp.json ~/.cursor/mcp.json
+```
 
+**Option B**: Add via IDE settings:
 1. Open **Settings** -> **Features** -> **MCP**.
 2. Click **+ Add Server**:
    - **Name**: `Atlas`
