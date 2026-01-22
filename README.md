@@ -29,23 +29,31 @@ Coding agents (Claude Code, Cursor, Windsurf) are fast, but they have the memory
 
 Atlas is a **local-first guardrail** that forces agents to "read the map" before they write code. It indexes your repo, packs relevant context deterministically, and screams at agents when they try to duplicate code or break APIs.
 
-## Quick Start
+## Installation
 
-### ⚡ One-Line Install
+Choose the method that best fits your workflow:
 
-**Mac/Linux:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/scripts/install.sh | bash
-```
-
-**Windows (PowerShell):**
-```powershell
-irm https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/scripts/install.ps1 | iex
-```
-
-### Manual Install
+### Option 1: Global NPM Install (Recommended)
+The fastest way to get Atlas available everywhere.
 ```bash
 npm install -g atlas-guardrails
+```
+
+### Option 2: Install from Source
+For contributors or those who want the latest master branch.
+```bash
+git clone https://github.com/marcusgoll/atlas-guardrails.git
+cd atlas-guardrails
+npm install
+npm run build
+npm link
+```
+
+### Option 3: Local Project Dependency
+Install it only for a specific repository.
+```bash
+npm install --save-dev atlas-guardrails
+# Use via npx atlas
 ```
 
 ## Usage
