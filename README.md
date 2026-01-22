@@ -31,29 +31,28 @@ Atlas is a **local-first guardrail** that forces agents to "read the map" before
 
 ## Installation
 
-Choose the method that best fits your workflow:
+### 🤖 Agent Extension Install (Recommended)
+Install Atlas directly into your favorite AI agent CLI:
 
-### Option 1: Global NPM Install (Recommended)
-The fastest way to get Atlas available everywhere.
+| Platform | Command |
+| :--- | :--- |
+| **Gemini CLI** | `gemini extensions install https://github.com/marcusgoll/atlas-guardrails` |
+| **Claude Code** | `claude extensions install https://github.com/marcusgoll/atlas-guardrails` |
+| **OpenCode** | [Manual Setup](#mcp-support) |
+| **Cursor** | [Manual Setup](#mcp-support) |
+| **Codex** | [MCP Config](#mcp-support) |
+
+### 💻 CLI Install
+To use Atlas as a standalone terminal tool:
 ```bash
 npm install -g atlas-guardrails
 ```
 
-### Option 2: Install from Source
-For contributors or those who want the latest master branch.
+### 🛠️ Developer Install (Source)
 ```bash
 git clone https://github.com/marcusgoll/atlas-guardrails.git
 cd atlas-guardrails
-npm install
-npm run build
-npm link
-```
-
-### Option 3: Local Project Dependency
-Install it only for a specific repository.
-```bash
-npm install --save-dev atlas-guardrails
-# Use via npx atlas
+npm install && npm run build && npm link
 ```
 
 ## Usage
