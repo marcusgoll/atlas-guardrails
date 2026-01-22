@@ -1,10 +1,10 @@
 {
   "name": "atlas-guardrails",
   "description": "Context packing and anti-duplication guardrails for Gemini.",
-  "version": "1.0.8",
+  "version": "1.0.18",
   "mcp": {
-    "command": "node",
-    "args": ["dist/index.js", "mcp"]
+    "command": "npx",
+    "args": ["-y", "atlas-guardrails", "mcp"]
   },
   "instructions": "GEMINI.md"
 }

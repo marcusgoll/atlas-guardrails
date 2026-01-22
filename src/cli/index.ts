@@ -5,21 +5,22 @@ import { AtlasGuardrails } from '../core/guardrails';
 import { RalphyIntegration } from '../core/ralphy';
 import { AtlasUpdater } from '../core/updater';
 
-const VERSION = '1.0.17';
+const VERSION = '1.0.18';
 
 /* eslint-disable no-useless-escape */
 export const BANNER = `
 \x1b[36m
       ___           ___           ___           ___           ___     
-     /\\  \\         /\\  \\       /:/  /        /::\\  \\       /::\\  \\   
-    /::\\  \\        /::\\  \\     /:/  /        /:/\\:\\  \\     /:/\\ \\  \\  
-   /:/\\:\\  \\       /::\\  \\   /:/  /        /::\\~\\:\\  \\   _\\:\~\\ \\  \\ 
-  /::\\~\\:\\  \\     /:/\\:\\__\ /:/__/        /:/\\:\\ \\:\__\ /\\ \\:\\ \\ \__\ 
-  \/__\\:\/:/  /    /:/  \/__/ \:\  \\        \/__\\:\/:/  / \\:\ \\:\ \/__/
-       \::/  /    /:/  /       \:\  \\            \::/  /   \\:\ \\:\__\  
-       /:/  /    /:/  /         \:\  \\           /:/  /     \\:\/:/  /  
-      /:/  /    /:/  /           \:\__\\         /:/  /       \::/  /   
-      \/__/     \/__/             \/__/         \/__/         \/__/    
+     /\\  \\         /\\  \\         /\\__\\         /::\\  \\       /::\\  \   
+    /::\\  \\        \\:\\  \\       /:/  /        /:/\\:\\  \\     /:/\\ \\  \  
+   /:/\\:\\  \\        \\:\\  \\     /:/  /        /::\\~\\:\\  \\   _\\:\~\\ \\  \ 
+  /::\\~\\:\\  \\       /::\\  \\   /:/  /        /:/\\:\\ \\:\\__\ /\\ \\:\\ \\ \__\ 
+ /:/\\:\\ \\:\\__\     /:/\\:\\__\ /:/__/        /:/\\:\\ \\:\\__\ /\\ \\:\\ \\ \__\ 
+ \/__\\:\/:/  /    /:/  \/__/ \:\  \        \/__\\:\/:/  / \\:\\ \\:\\ \/__/
+      \\::/  /    /:/  /       \\:\  \            \\::/  /   \\:\\ \\:\\__\  
+      /:/  /    /:/  /         \\:\  \           /:/  /     \\:\/:/  /  
+     /:/  /    /:/  /           \\:\__\         /:/  /       \\::/  /   
+     \/__/     \/__/             \/__/         \/__/         \/__/    
 \x1b[0m
    \x1b[1mATLAS GUARDRAILS\x1b[0m - \x1b[2mStop the Entropy\x1b[0m
 `;
@@ -32,11 +33,12 @@ program
   .version(VERSION)
   .configureOutput({
     writeOut: (str) => process.stdout.write(str),
-    writeErr: (str) => process.stdout.write(str),
+    writeErr: (str) => process.stderr.write(str),
     outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m'),
   });
 
 async function cliSetup() {
+  // Only print banner and check updates for human CLI usage
   process.stderr.write(BANNER + '\n');
   await AtlasUpdater.checkForUpdates(VERSION, true).catch(() => {});
 }
@@ -70,7 +72,8 @@ program
       budget: parseInt(options.budget),
       mode: 'feature',
     });
-    console.log(`Packed ${pack.files.length} files into pack.json`);
+    // Ensure this goes to stderr if it's logging, but here it's CLI output
+    process.stderr.write(`Packed ${pack.files.length} files into pack.json\n`);
   });
 
 program
@@ -92,10 +95,10 @@ program
     const guard = new AtlasGuardrails(process.cwd());
     const result = await guard.checkDrift();
     if (result.status === 'fail') {
-      console.error(`Check failed: ${result.reason}`);
+      process.stderr.write(`Check failed: ${result.reason}\n`);
       process.exit(1);
     } else {
-      console.log('Checks passed.');
+      process.stderr.write('Checks passed.\n');
     }
   });
 
@@ -111,7 +114,8 @@ program
   .command('mcp')
   .description('Start the MCP server (stdio)')
   .action(async () => {
-    // Dynamic import to run the server
+    // IMPORTANT: Absolutely no output to stdout here.
+    // Console.log is already redirected in server.ts
     await import('../mcp/server');
   });
 

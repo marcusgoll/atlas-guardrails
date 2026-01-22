@@ -1,6 +1,6 @@
 {
   "name": "atlas-guardrails",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Atlas Guardrails CLI",
   "main": "dist/index.js",
   "bin": {
