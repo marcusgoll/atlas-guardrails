@@ -1,6 +1,6 @@
 <div align="center">
 
-# Atlas Guardrails 🗺️
+#  ATLAS GUARDRAILS - Stop the Entropy     
 
 **Stop LLM agents from turning your codebase into a landfill.**
 
@@ -11,19 +11,6 @@
 
 ![Atlas Banner](assets/banner.png)
 
-       ___           ___           ___         ___           ___                     │
-│      /\  \         /\  \         /\__\       /\  \         /\  \                    │
-│     /::\  \        \:\  \       /:/  /      /::\  \       /::\  \                   │
-│    /:/\:\  \        \:\  \     /:/  /      /:/\:\  \     /:/\ \  \                  │
-│   /::\~\:\  \       /::\  \   /:/  /      /::\~\:\  \   _\:\~\ \  \                 │
-│  /:/\:\ \:\__\     /:/\:\__\ /:/__/      /:/\:\ \:\__\ /\ \:\ \ \__\                │
-│  \/__\:\/:/  /    /:/  \/__/ \:\  \      \/__\:\/:/  / \:\ \:\ \/__/                │
-│       \::/  /    /:/  /       \:\  \          \::/  /   \:\ \:\__\                  │
-│       /:/  /    /:/  /         \:\  \         /:/  /     \:\/:/  /                  │
-│      /:/  /    /:/  /           \:\__\       /:/  /       \::/  /                   │
-│      \/__/     \/__/             \/__/       \/__/         \/__/                    │
-│                                                                                     │
-│    ATLAS GUARDRAILS - Stop the Entropy                                
 
 [Quick Start](#installation--integration-) •
 [Features](#features) •
