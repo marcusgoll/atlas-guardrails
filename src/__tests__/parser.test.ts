@@ -33,12 +33,12 @@ describe('SimpleParser', () => {
   });
 
   test('parses Python symbols correctly', () => {
-    const code = `
-      from module import Something
-      class MyPyClass:
-          def method(self): pass
-      def my_py_func(): pass
-    `;
+    const code = [
+      'from module import Something',
+      'class MyPyClass:',
+      '    def method(self): pass',
+      'def my_py_func(): pass',
+    ].join('\n');
     const result = SimpleParser.parse('test.py', code);
 
     expect(result.language).toBe('python');
