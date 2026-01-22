@@ -35,12 +35,12 @@ Atlas is a **local-first guardrail** that forces agents to "read the map" before
 
 **Mac/Linux:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/scripts/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/marcusgoll/atlas-guardrails/master/scripts/install.ps1 | iex
 ```
 
 ### Manual Install
