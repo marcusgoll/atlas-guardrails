@@ -17,10 +17,19 @@ export class AtlasGuardrails {
     let candidates: any[] = [];
     if (intent) {
       // Split intent into keywords for broader search
-      const keywords = intent.split(/\s+/).filter((k) => k.length > 2);
-      if (keywords.length > 0) {
-        const placeholders = keywords.map(() => 's.name LIKE ?').join(' OR ');
-        const params = keywords.map((k) => `%${k}%`);
+      const rawKeywords = intent.toLowerCase().split(/\s+/).filter((k) => k.length > 2);
+      const keywords = new Set<string>();
+      for (const kw of rawKeywords) {
+        keywords.add(kw);
+        if (kw.length >= 6) {
+          keywords.add(kw.substring(0, 4));
+        }
+      }
+      const keywordList = Array.from(keywords);
+
+      if (keywordList.length > 0) {
+        const placeholders = keywordList.map(() => 's.name LIKE ?').join(' OR ');
+        const params = keywordList.map((k) => `%${k}%`);
         candidates = db
           .prepare(
             `

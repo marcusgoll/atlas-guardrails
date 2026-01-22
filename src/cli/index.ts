@@ -11,7 +11,6 @@ const VERSION = pkg.version;
 
 // EARLY REDIRECTION: If we are in MCP mode, silence stdout immediately
 if (process.argv.includes('mcp')) {
-  const originalLog = console.log;
   console.log = (...args) => {
     process.stderr.write(args.map(String).join(' ') + '\n');
   };

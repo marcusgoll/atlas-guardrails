@@ -18,30 +18,54 @@ export class AtlasPacker {
   }
 
   pack(options: PackOptions) {
-    const keywords = options.task.split(' ').filter((w) => w.length > 3);
-    const db = this.db.getDb();
-
-    // 1. Seed: Find symbols matching keywords
-    let seeds: any[] = [];
-    if (keywords.length > 0) {
-      const placeholders = keywords.map(() => 'name LIKE ?').join(' OR ');
-      const args = keywords.map((k) => `%${k}%`);
-      seeds = db
-        .prepare(
-          `SELECT s.*, f.path as file_path FROM symbols s JOIN files f ON s.file_id = f.id WHERE ${placeholders} LIMIT 20`,
-        )
-        .all(...args);
+    const rawKeywords = options.task.toLowerCase().split(/\s+/).filter(w => w.length >= 3);
+    const keywords = new Set<string>();
+    for (const kw of rawKeywords) {
+        keywords.add(kw);
+        // If word is long, add prefix (e.g. authentication -> auth)
+        if (kw.length >= 6) {
+            keywords.add(kw.substring(0, 4));
+        }
     }
-
-    // 2. Expand: Get files for these symbols
+    const keywordList = Array.from(keywords);
+    const db = this.db.getDb();
+    
     const filesToInclude = new Set<string>();
     const fileReasons = new Map<string, string>();
+    let seeds: any[] = [];
 
-    for (const seed of seeds) {
-      if (!filesToInclude.has(seed.file_path)) {
-        filesToInclude.add(seed.file_path);
-        fileReasons.set(seed.file_path, `Matched keyword in symbol: ${seed.name}`);
-      }
+    if (keywordList.length > 0) {
+        // 1. Search Symbols
+        const symPlaceholders = keywordList.map(() => 's.name LIKE ?').join(' OR ');
+        const symArgs = keywordList.map(k => `%${k}%`);
+        seeds = db.prepare(`
+            SELECT s.*, f.path as file_path 
+            FROM symbols s 
+            JOIN files f ON s.file_id = f.id 
+            WHERE ${symPlaceholders} 
+            LIMIT 30
+        `).all(...symArgs);
+
+        for (const seed of seeds) {
+            if (!filesToInclude.has(seed.file_path)) {
+                filesToInclude.add(seed.file_path);
+                fileReasons.set(seed.file_path, `Matched keyword in symbol: ${seed.name}`);
+            }
+        }
+
+        // 2. Search File Paths
+        const pathPlaceholders = keywordList.map(() => 'path LIKE ?').join(' OR ');
+        const pathArgs = keywordList.map(k => `%${k}%`);
+        const pathMatches = db.prepare(`
+            SELECT path FROM files WHERE ${pathPlaceholders} LIMIT 20
+        `).all(...pathArgs) as any[];
+
+        for (const match of pathMatches) {
+            if (!filesToInclude.has(match.path)) {
+                filesToInclude.add(match.path);
+                fileReasons.set(match.path, `Matched keyword in file path`);
+            }
+        }
     }
 
     // 3. Simple Graph expansion (Dependencies)
