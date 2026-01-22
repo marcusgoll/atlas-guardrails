@@ -46,7 +46,7 @@ export class SimpleParser {
     lines.forEach((line, index) => {
       const lineNum = index + 1;
       const trimmed = line.trim();
-      
+
       const impMatch = line.match(importRegex);
       if (impMatch) {
         imports.push({ path: impMatch[1] });
@@ -56,8 +56,22 @@ export class SimpleParser {
       if (expMatch) {
         const name = expMatch[2];
         const kind = expMatch[1];
-        symbols.push({ kind: 'export', name, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: true });
-        symbols.push({ kind: kind as any, name, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: true });
+        symbols.push({
+          kind: 'export',
+          name,
+          signature: trimmed,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: true,
+        });
+        symbols.push({
+          kind: kind as any,
+          name,
+          signature: trimmed,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: true,
+        });
         if (kind === 'class') currentClass = name;
         return;
       }
@@ -65,26 +79,40 @@ export class SimpleParser {
       const classMatch = line.match(classRegex);
       if (classMatch) {
         currentClass = classMatch[1];
-        symbols.push({ kind: 'class', name: currentClass, signature: trimmed, start_line: lineNum, end_line: lineNum, exported: false });
+        symbols.push({
+          kind: 'class',
+          name: currentClass,
+          signature: trimmed,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: false,
+        });
         return;
       }
 
       const methodMatch = line.match(methodRegex);
       if (methodMatch && currentClass) {
-        symbols.push({ 
-          kind: 'function', 
-          name: `${currentClass}.${methodMatch[1]}`, 
-          signature: trimmed, 
-          start_line: lineNum, 
-          end_line: lineNum, 
-          exported: false 
+        symbols.push({
+          kind: 'function',
+          name: `${currentClass}.${methodMatch[1]}`,
+          signature: trimmed,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: false,
         });
         return;
       }
 
       const funcMatch = line.match(functionRegex);
       if (funcMatch) {
-        symbols.push({ kind: 'function', name: funcMatch[1], signature: trimmed, start_line: lineNum, end_line: lineNum, exported: false });
+        symbols.push({
+          kind: 'function',
+          name: funcMatch[1],
+          signature: trimmed,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: false,
+        });
       }
     });
 
@@ -108,10 +136,10 @@ export class SimpleParser {
       if (trimmedLine.length === 0) return;
 
       const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
-      
+
       // Heuristic: Reset class context if we hit a non-indented line that isn't a class
       if (leadingSpaces === 0 && !trimmedLine.startsWith('class ')) {
-          currentClass = null;
+        currentClass = null;
       }
 
       const impMatch = trimmedLine.match(importRegex);
@@ -122,14 +150,28 @@ export class SimpleParser {
       const classMatch = trimmedLine.match(classRegex);
       if (classMatch) {
         currentClass = classMatch[1];
-        symbols.push({ kind: 'class', name: currentClass, signature: trimmedLine, start_line: lineNum, end_line: lineNum, exported: true });
+        symbols.push({
+          kind: 'class',
+          name: currentClass,
+          signature: trimmedLine,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: true,
+        });
         return;
       }
 
       const defMatch = trimmedLine.match(defRegex);
       if (defMatch) {
         const name = currentClass ? `${currentClass}.${defMatch[1]}` : defMatch[1];
-        symbols.push({ kind: 'function', name, signature: trimmedLine, start_line: lineNum, end_line: lineNum, exported: true });
+        symbols.push({
+          kind: 'function',
+          name,
+          signature: trimmedLine,
+          start_line: lineNum,
+          end_line: lineNum,
+          exported: true,
+        });
       }
     });
 

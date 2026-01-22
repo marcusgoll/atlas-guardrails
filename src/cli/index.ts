@@ -3,27 +3,33 @@ import { AtlasIndexer } from '../core/indexer';
 import { AtlasPacker } from '../core/packer';
 import { AtlasGuardrails } from '../core/guardrails';
 import { RalphyIntegration } from '../core/ralphy';
+import { AtlasUpdater } from '../core/updater';
+import pkg from '../../package.json';
 
 /* eslint-disable no-useless-escape */
 export const BANNER = `
 \x1b[36m
       ___           ___           ___           ___           ___     
-     /\\  \\         /\\  \\         /\\__\\       /\\  \\         /\\  \\    
-    /::\\  \\        \\:\\  \\       /:/  /      /::\\  \\       /::\\  \\   
-   /:/\\:\\  \\        \\:\\  \\     /:/  /      /:/\\:\\  \\     /:/\\ \\  \\  
-  /::\\~\\:\\  \\       /::\\  \\   /:/  /      /::\\~\\:\\  \\   _\\:\~\ \\  \\ 
- /:/\\:\\ \\:\__\     /:/\\:\__\ /:/__/      /:/\\:\\ \\:\__\ /\\ \\:\\ \\ \__\
- \/__\\:\/:/  /    /:/  \/__/ \:\  \\        \/__\\:\/:/  / \\:\ \\:\ \/__/
-      \\::/  /    /:/  /       \\:\  \\            \\::/  /   \\:\ \\:\__\  
-      /:/  /    /:/  /         \\:\  \\           /:/  /     \\:\/:/  /  
-     /:/  /    /:/  /           \\:\__\         /:/  /       \\::/  /   
+     /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    
+    /::\\  \\        /::\\  \\       /:/  /        /::\\  \\       /::\\  \\   
+   /:/\\:\\  \\        /::\\  \\     /:/  /        /:/\\:\\  \\     /:/\\ \\  \\  
+  /::\\~\\:\\  \\       /::\\  \\   /:/  /        /::\\~\\:\\  \\   _\\:\~\\ \\  \\ 
+ /:/\\:\\ \\:\__\     /:/\\:\__\ /:/__/        /:/\\:\\ \\:\__\ /\\ \\:\\ \\ \__\ 
+ \/__\\:\/:/  /    /:/  \/__/ \:\  \\        \/__\\:\/:/  / \\:\ \\:\ \/__/ 
+      \::/  /    /:/  /       \:\  \\            \::/  /   \:\ \:\__\  
+      /:/  /    /:/  /         \:\  \\           /:/  /     \:\/:/  /  
+     /:/  /    /:/  /           \:\__\\         /:/  /       \::/  /   
      \/__/     \/__/             \/__/         \/__/         \/__/    
 \x1b[0m
    \x1b[1mATLAS GUARDRAILS\x1b[0m - \x1b[2mStop the Entropy\x1b[0m
 `;
 
-if (!process.argv.includes('mcp')) {
+const isMcp = process.argv.includes('mcp');
+
+if (!isMcp) {
   process.stderr.write(BANNER + '\n');
+  // Run background update check
+  AtlasUpdater.checkForUpdates(pkg.version, true).catch(() => {});
 }
 
 const program = new Command();
@@ -31,11 +37,18 @@ const program = new Command();
 program
   .name('atlas')
   .description('Atlas Guardrails CLI')
-  .version('1.0.11')
+  .version(pkg.version)
   .configureOutput({
     writeOut: (str) => process.stdout.write(str),
     writeErr: (str) => process.stdout.write(str),
     outputError: (str, write) => write('\x1b[31m' + str + '\x1b[0m'),
+  });
+
+program
+  .command('update')
+  .description('Check for and install updates')
+  .action(async () => {
+    await AtlasUpdater.checkForUpdates(pkg.version, false);
   });
 
 program
