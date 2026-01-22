@@ -9,7 +9,9 @@
 [![License](https://img.shields.io/npm/l/atlas-guardrails.svg?style=flat-square)](LICENSE)
 [![Downloads](https://img.shields.io/npm/dm/atlas-guardrails.svg?style=flat-square)](https://www.npmjs.com/package/atlas-guardrails)
 
-[Quick Start](#quick-start) •
+![Atlas Banner](assets/banner.png)
+
+[Quick Start](#installation--integration-) •
 [Features](#features) •
 [MCP Support](#mcp-support) •
 [Contributing](#contributing)
