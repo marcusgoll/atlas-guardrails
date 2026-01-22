@@ -47,6 +47,9 @@ describe('SimpleParser', () => {
     const cls = result.symbols.find((s) => s.name === 'MyPyClass');
     expect(cls).toBeDefined();
 
+    const method = result.symbols.find((s) => s.name === 'MyPyClass.method');
+    expect(method).toBeDefined();
+
     const func = result.symbols.find((s) => s.name === 'my_py_func');
     expect(func).toBeDefined();
   });

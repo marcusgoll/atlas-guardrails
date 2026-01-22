@@ -105,7 +105,15 @@ export class SimpleParser {
     lines.forEach((line, index) => {
       const lineNum = index + 1;
       const trimmedLine = line.trim();
+      if (trimmedLine.length === 0) return;
+
+      const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
       
+      // Heuristic: Reset class context if we hit a non-indented line that isn't a class
+      if (leadingSpaces === 0 && !trimmedLine.startsWith('class ')) {
+          currentClass = null;
+      }
+
       const impMatch = trimmedLine.match(importRegex);
       if (impMatch) {
         imports.push({ path: impMatch[1] || 'module' });
