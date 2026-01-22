@@ -5,10 +5,15 @@ import { AtlasIndexer } from '../core/indexer';
 import { AtlasPacker } from '../core/packer';
 import { AtlasGuardrails } from '../core/guardrails';
 
+// Redirect all console.log to stderr so it doesn't break the MCP protocol on stdout
+console.log = (...args) => {
+  process.stderr.write(args.map(String).join(' ') + '\n');
+};
+
 const server = new Server(
   {
     name: 'atlas-mcp',
-    version: '0.1.0',
+    version: '1.0.17',
   },
   {
     capabilities: {
