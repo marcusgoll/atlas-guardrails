@@ -54,16 +54,21 @@ gemini mcp add atlas -- command npx -y atlas-guardrails mcp
 <details>
 <summary><b>Claude Code</b></summary>
 
-Install Atlas as a native extension:
+**Option A**: Add as marketplace + install plugin:
 ```bash
-claude extensions install https://github.com/marcusgoll/atlas-guardrails
+# In Claude Code:
+/plugin marketplace add marcusgoll/atlas-guardrails
+/plugin install atlas-guardrails@marcusgoll/atlas-guardrails
+```
+
+**Option B**: Add MCP server directly:
+```bash
+claude mcp add atlas -- npx -y atlas-guardrails mcp
 ```
 
 **What you get:**
 - MCP tools: `atlas_index`, `atlas_pack`, `atlas_find_duplicates`
 - Slash commands: `/atlas-pack`, `/atlas-check`, `/atlas-duplicates`
-- Skills: `/atlas` for guided context packing
-- Hooks: Auto-runs `atlas check` after Edit/Write operations
 </details>
 
 <details>
